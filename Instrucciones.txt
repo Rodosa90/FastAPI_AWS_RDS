@@ -1,0 +1,229 @@
+fastapi
+
+https://www.youtube.com/watch?v=FUsJmLO2G4g   --- deploy en lambda
+
+
+extension 
+sqllite viewer
+
+tuve que instalar 
+
+sudo apt install python3.10-venv
+
+y luego crear mi env
+
+python3 -m venv venv
+
+luego activarlo 
+windows 
+myenv\Scripts\activate
+
+linux o MAC
+source "myenv"/bin/activate
+
+actualizamos pip
+
+python3 -m pip install --upgrade pip
+
+instalamos librerias
+
+pip install fastapi
+pip install uvicorn
+pip install pyjwt
+pip install sqlalchemy
+pip install mangum
+pip install pymysql
+
+para ejecutar el app:
+
+uvicorn main:app
+uvicorn main:app --reload
+uvicorn main:app --reload --port 5000 --> para cambiar el puerto 
+uvicorn main:app --reload --port 5000 --host 0.0.0.0 --> para acceder desde cualquier ordenador
+
+0.0.0.0 indica que un servicio está disponible para recibir conexiones en todas las interfaces de red disponibles en el dispositivo donde se ejecuta.
+
+para ver la documentación se pone http://127.0.0.1:8000//docs
+
+al finalizar crer nuestro archivo requirements.txt
+todo a nivel de FastAPI , se ponen automaticamente las libs.
+pip freeze > requirements.txt
+
+annotated-types==0.6.0
+anyio==4.3.0
+click==8.1.7
+exceptiongroup==1.2.0
+fastapi==0.110.0
+greenlet==3.0.3
+h11==0.14.0
+idna==3.6
+mangum==0.17.0
+pydantic==1.10.11
+PyJWT==2.8.0
+pymysql==1.1.0
+sniffio==1.3.1
+SQLAlchemy==2.0.29
+starlette==0.36.3
+typing_extensions==4.10.0
+uvicorn==0.29.0
+
+
+para poner mi api en lamda
+
+hay que instalar la libreria de mangum , la cual encapsula nuestra app para que lamda la pueda ver
+
+pip install mangum
+
+
+se genera la carpeta  "LIB" de dependencias o librerías con 
+
+pip  install -t lib -r requirements.txt
+
+se comprime el contenido de la carpeta dependencias con:  
+Compress-Archive lib/*  aws_lambda_artifact.zip  --> en windows  su usa -update 
+compress-archive  main.py -update aws_lambda_artifact.zip  -- windows
+
+
+(cd dependencies; zip ../aws_lambda_artifact.zip -r) --> en linux o mac se usa -u 
+zip -r aws_lambda_artifact.zip lib/* --> linux
+zip -ru aws_lambda_artifact.zip main.py lib/*
+zip -ru aws_lambda_artifact.zip  config/*
+zip -ru aws_lambda_artifact.zip  modelos/*
+zip -ru aws_lambda_artifact.zip datos.sqlite
+
+
+
+posible problema con la libreria de pydantic se quitaron la pydentic_core==2.16 y se uso version 1.10.11 nada mas:
+
+pydantic==2.6.4  se uso mejor pydantic==1.10.11
+
+
+schema_extra ---> ahora es --> json_schema_extra
+
+
+
+
+URL AWS:
+
+https://el262k2z2nm72oebtzxhtfsv7y0opykw.lambda-url.eu-west-1.on.aws/   --- SIN BD
+
+
+https://mhltonmfbnx774nwiidbazbfky0rkrbd.lambda-url.eu-west-1.on.aws/ --- con BD
+
+login 
+rodolfo@gmail.com' and usuario.clave == '1234':
+
+
+
+implemenet a service call out to my login method ??
+
+cambiar en la back end this para poder extraer.
+
+
+{
+    "access_token": "jIi89koO7CKXQlwJxQuIacDTtVIM",
+ 
+}
+
+
+
+
+
+
+****************************
+Mis datos en apigee X
+*****************************
+
+my api proxy
+Rodo_Project
+
+mi proxy de auth2.0
+GenerateAccessToken_Rodo
+
+my shareflow
+Rodo_Proy_Shareflow
+
+mi app
+Rodo_Project_App
+
+key  lLjENTA6QgLY8PUMCZDoubQlEQlJaGIDZnIuW1PATsCXdcxD
+secret 5QCmyQOqc2SGUB2UA9VEOpvUpkkZZj9RyqwUI6cSN56lGx5O07TTRAZlT3o7C3At
+
+host name  apigee x Rodo_Project_Ap
+34.117.240.138.nip.io
+
+mi apiproduct
+Rodo_ProjectRodo_Project
+
+cree mis custome attributes anivel de app
+
+quota_count
+10
+quota_interval
+1
+quota_timeunit
+minute
+
+este es mi part para mis custum atrributes primero pongo un autentcation apikey
+verifyapikey.VA-Authetication.quota_count 
+verifyapikey.VA-Authetication.quota_interval
+verifyapikey.VA-Authetication.quota_timeunit
+
+fault rules
+policies.ratelimit.QuotaViolation
+
+Spect para auth2.0 --> Client Credentials
+Rodo_Proy_Ventas
+
+
+use mi service callout para llamar a mi URL de de login
+
+
+
+aurora aws user y passs
+https://www.youtube.com/watch?v=j125EBrToFM
+BD --> fastapiventas
+admin
+rodoapi1
+puerto 3306
+
+tuve que agregar una default securiy rule en amazon aurora en VPC security groups
+para conectar con mi BD aurora y tambien tener las mismas reglas en lambda y aws aurora para que se pudieran comunicar 
+
+server mysql 
+
+sudo mysql
+pass:rodo
+
+alter user 'root'@'localhost' identified with mysql_native_password by 'rodo';
+
+
+
+explicacion:
+apiproxy(main) -->> servicecallout to get the access token  to include in curl command -->  back-end is expecting  access token in the request so it configured service callout policy generate access token when its executed
+by using an extract variable policy , extracting access token from service callout policy and using assign message policy setting access token as a header authorization -->
+
+
+
+
+
+
+There is service callout to get the back end 
+--
+to get the token and appened to the target url 
+--service callout 
+--extract varible
+--assign message
+cache  
+Flow cllaout policy
+
+Security policy
+OauthVerifytoken
+traffic mangement
+JSON validate policy
+Mahesh Manne
+11:32 p.m.
+JSON payload validate policy
+
+
+
